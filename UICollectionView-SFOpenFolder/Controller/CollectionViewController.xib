@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11762" systemVersion="16C67" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11757"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="CollectionViewController">
+            <connections>
+                <outlet property="myCollectionView" destination="kQd-4Y-8Wo" id="vnl-ww-aWT"/>
+                <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="i5M-Pr-FkT">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="745-To-FIX">
+                    <rect key="frame" x="0.0" y="0.0" width="375" height="64"/>
+                    <subviews>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JUD-sN-drW">
+                            <rect key="frame" x="0.0" y="0.0" width="67" height="64"/>
+                            <constraints>
+                                <constraint firstAttribute="width" constant="67" id="ZcG-H9-kQx"/>
+                            </constraints>
+                            <state key="normal" title="Button"/>
+                            <connections>
+                                <action selector="backButtonTouched:" destination="-1" eventType="touchUpInside" id="glB-xQ-hwL"/>
+                            </connections>
+                        </button>
+                    </subviews>
+                    <color key="backgroundColor" red="0.1058823529" green="0.63137254899999995" blue="0.8862745098" alpha="1" colorSpace="calibratedRGB"/>
+                    <constraints>
+                        <constraint firstAttribute="bottom" secondItem="JUD-sN-drW" secondAttribute="bottom" id="2fH-R5-bfQ"/>
+                        <constraint firstItem="JUD-sN-drW" firstAttribute="top" secondItem="745-To-FIX" secondAttribute="top" id="UOy-h9-zHw"/>
+                        <constraint firstAttribute="height" constant="64" id="cTR-Af-31c"/>
+                        <constraint firstItem="JUD-sN-drW" firstAttribute="leading" secondItem="745-To-FIX" secondAttribute="leading" id="ooH-PU-0hq"/>
+                    </constraints>
+                </view>
+                <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="kQd-4Y-8Wo">
+                    <rect key="frame" x="0.0" y="64" width="375" height="603"/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="2" minimumInteritemSpacing="0.0" id="lI7-j9-vmr">
+                        <size key="itemSize" width="50" height="50"/>
+                        <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                        <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                        <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                    </collectionViewFlowLayout>
+                    <connections>
+                        <outlet property="dataSource" destination="-1" id="v6W-qa-Rar"/>
+                        <outlet property="delegate" destination="-1" id="dHJ-td-ojq"/>
+                    </connections>
+                </collectionView>
+            </subviews>
+            <color key="backgroundColor" red="0.8692238927" green="0.23548197749999999" blue="0.1669290662" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstItem="kQd-4Y-8Wo" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="0yk-GI-Iky"/>
+                <constraint firstAttribute="trailing" secondItem="745-To-FIX" secondAttribute="trailing" id="29W-PM-nqL"/>
+                <constraint firstItem="745-To-FIX" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" id="6vf-29-mAp"/>
+                <constraint firstItem="745-To-FIX" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="AsD-Xl-YGt"/>
+                <constraint firstAttribute="trailing" secondItem="kQd-4Y-8Wo" secondAttribute="trailing" id="DpT-oi-cXg"/>
+                <constraint firstAttribute="bottom" secondItem="kQd-4Y-8Wo" secondAttribute="bottom" id="vMW-A5-omT"/>
+                <constraint firstItem="kQd-4Y-8Wo" firstAttribute="top" secondItem="745-To-FIX" secondAttribute="bottom" id="yeg-yf-gSu"/>
+            </constraints>
+            <point key="canvasLocation" x="25.5" y="52.5"/>
+        </view>
+    </objects>
+</document>

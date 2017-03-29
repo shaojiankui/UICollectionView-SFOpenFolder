@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11762" systemVersion="16C67" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11757"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionReusableView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="CollectionViewHeader" id="U6b-Vx-4bR" customClass="CollectionViewHeader">
+            <rect key="frame" x="0.0" y="0.0" width="320" height="50"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <subviews>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mNL-zt-MjM">
+                    <rect key="frame" x="0.0" y="0.0" width="320" height="50"/>
+                    <state key="normal" title="Button"/>
+                </button>
+            </subviews>
+            <color key="backgroundColor" red="0.8692238927" green="0.23548197749999999" blue="0.1669290662" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstAttribute="bottom" secondItem="mNL-zt-MjM" secondAttribute="bottom" id="8oe-Kj-9jn"/>
+                <constraint firstAttribute="trailing" secondItem="mNL-zt-MjM" secondAttribute="trailing" id="aev-qL-mkE"/>
+                <constraint firstItem="mNL-zt-MjM" firstAttribute="leading" secondItem="U6b-Vx-4bR" secondAttribute="leading" id="cLI-DI-Gyh"/>
+                <constraint firstItem="mNL-zt-MjM" firstAttribute="top" secondItem="U6b-Vx-4bR" secondAttribute="top" id="mbQ-03-Ktf"/>
+            </constraints>
+            <connections>
+                <outlet property="button" destination="mNL-zt-MjM" id="yb2-YT-bYl"/>
+            </connections>
+        </collectionReusableView>
+    </objects>
+</document>
