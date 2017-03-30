@@ -30,7 +30,6 @@ static const void *k_sf_openfoler_selectedindexpath = &k_sf_openfoler_selectedin
 @property (strong, nonatomic) NSMutableArray *sf_animationCells;
 @property (strong, nonatomic) NSMutableArray *sf_animationHeaders;
 //@property (strong, nonatomic) NSMutableArray *sf_animationFooters; //todo
-@property (strong, nonatomic) NSIndexPath *sf_selectedIndexPath;
 
 @property (assign, nonatomic) CGFloat sf_up;
 @property (assign, nonatomic) CGFloat sf_down;
@@ -137,6 +136,13 @@ static const void *k_sf_openfoler_selectedindexpath = &k_sf_openfoler_selectedin
 
 #pragma mark -
 #pragma mark -- Opend Method
+- (void)sf_closeViewWithSelectedIndexPath:(void (^)(NSIndexPath *selectedIndexPath))completion
+
+{
+    [self sf_closeViewWithIndexPath:self.sf_selectedIndexPath completion:^{
+        completion(self.sf_selectedIndexPath);
+    }];
+}
 - (BOOL)sf_openFolderAtIndexPath:(NSIndexPath *)indexPath
                     contentBlock:(SFContentViewBlock)sf_contentViewBlock
                   beginningBlock:(SFBeginningBlock)sf_beginningBlock
@@ -153,7 +159,7 @@ static const void *k_sf_openfoler_selectedindexpath = &k_sf_openfoler_selectedin
         if (self.sf_beginningBlock) {
             self.sf_beginningBlock(SFOpenStatusOpening);
         }
-        [self sf_closeViewWithSelectIndexPath:indexPath];
+        [self sf_closeViewWithIndexPath:indexPath completion:nil];
     }
     
     if (self.sf_openStatus == SFOpenStatusClose) {
@@ -199,7 +205,11 @@ static const void *k_sf_openfoler_selectedindexpath = &k_sf_openfoler_selectedin
         [UIView animateWithDuration:SFCellMoveDuration animations:^{
             self.sf_contentView.frame = CGRectMake(0, CGRectGetMaxY(selectCellFinalFrame), self.sf_contentView.frame.size.width,contentHeight);
         } completion:^(BOOL finished) {
-            
+            //完成状态
+            if (self.sf_completionBlock) {
+                self.sf_completionBlock(SFOpenStatusOpened);
+                self.sf_openStatus = SFOpenStatusOpened;
+            }
         }];
     }
     else
@@ -218,7 +228,11 @@ static const void *k_sf_openfoler_selectedindexpath = &k_sf_openfoler_selectedin
         [UIView animateWithDuration:SFCellMoveDuration animations:^{
             self.sf_contentView.frame = CGRectMake(0, CGRectGetMaxY(selectCelFinalFrame), self.sf_contentView.frame.size.width,contentHeight);
         } completion:^(BOOL finished) {
-            
+            //完成状态
+            if (self.sf_completionBlock) {
+                self.sf_completionBlock(SFOpenStatusOpened);
+                self.sf_openStatus = SFOpenStatusOpened;
+            }
         }];
     }
    
@@ -252,10 +266,7 @@ static const void *k_sf_openfoler_selectedindexpath = &k_sf_openfoler_selectedin
         {
             //改变当前cell样式;
         }
-        //完成状态
-        if ((path == [visiblePaths lastObject]) && self.sf_completionBlock) {
-            self.sf_completionBlock(SFOpenStatusOpened);
-        }
+        
     }];
     
     
@@ -317,10 +328,11 @@ static const void *k_sf_openfoler_selectedindexpath = &k_sf_openfoler_selectedin
         {
             //改变当前cell样式;
         }
-        //完成状态
-        if ((moveCell == [self.sf_animationCells lastObject]) && self.sf_completionBlock) {
-            self.sf_completionBlock(SFOpenStatusOpened);
-        }
+//        //完成状态
+//        if ((moveCell == [self.sf_animationCells lastObject]) && self.sf_completionBlock) {
+//            self.sf_completionBlock(SFOpenStatusOpened);
+//            self.sf_openStatus = SFOpenStatusOpened;
+//        }
     }];
     
     [visibleSections enumerateObjectsUsingBlock:^(NSIndexPath *index, NSUInteger idx, BOOL *stop) {
@@ -343,8 +355,15 @@ static const void *k_sf_openfoler_selectedindexpath = &k_sf_openfoler_selectedin
 
 #pragma mark -
 #pragma mark -- Close Method
-- (void)sf_closeViewWithSelectIndexPath:(NSIndexPath *)indexPath
+- (void)sf_closeViewWithIndexPath:(NSIndexPath *)indexPath completion:(void (^)(void))completion
 {
+    if (self.sf_openStatus == SFOpenStatusClose) {
+        if (completion) {
+            completion();
+        }
+        NSLog(@"折叠section");
+        return;
+    }
     NSLog(@"关闭");
     [self.sf_animationCells enumerateObjectsUsingBlock:^(UICollectionViewCell *moveCell, NSUInteger idx, BOOL *stop) {
         if (moveCell.sf_direction == SFMoveDirectionUp)
@@ -354,10 +373,6 @@ static const void *k_sf_openfoler_selectedindexpath = &k_sf_openfoler_selectedin
         else
         {
             [self sf_animateView:moveCell WithDirection:SFMoveDirectionUp distance:self.sf_down  isOpening:NO];
-        }
-        //完成状态
-        if ((moveCell == [self.sf_animationCells lastObject]) && self.sf_completionBlock) {
-            self.sf_completionBlock(SFOpenStatusClose);
         }
     }];
     
@@ -378,9 +393,12 @@ static const void *k_sf_openfoler_selectedindexpath = &k_sf_openfoler_selectedin
             self.sf_contentView.frame = CGRectMake(self.sf_contentView.frame.origin.x, self.sf_contentView.frame.origin.y, self.sf_contentView.frame.size.width,0);
         } completion:^(BOOL finished) {
             [self.sf_contentView removeFromSuperview];
-            if([self.sf_animationCells count] == 0){
-                self.sf_openStatus = SFOpenStatusClose;
+            if (self.sf_completionBlock) {
                 self.sf_completionBlock(SFOpenStatusClose);
+                self.sf_openStatus = SFOpenStatusClose;
+            }
+            if (completion) {
+                completion();
             }
         }];
     }else{
@@ -396,11 +414,17 @@ static const void *k_sf_openfoler_selectedindexpath = &k_sf_openfoler_selectedin
                 [self.sf_contentView removeFromSuperview];
             }];
         } completion:^(BOOL finished) {
-            
             [self.sf_contentView removeFromSuperview];
+            if (self.sf_completionBlock) {
+                self.sf_completionBlock(SFOpenStatusClose);
+                self.sf_openStatus = SFOpenStatusClose;
+            }
+            if (completion) {
+                completion();
+            }
         }];
     }
-    
+  
     
 //    NSArray *paths = [collectionView indexPathsForVisibleItems];
 //    for (NSIndexPath *path in paths)
@@ -457,11 +481,11 @@ static const void *k_sf_openfoler_selectedindexpath = &k_sf_openfoler_selectedin
                      animations:^{
                          view.frame = newFrame;
                      } completion:^(BOOL finished) {
-                         if (isOpening) {
-                             self.sf_openStatus = SFOpenStatusOpened;
-                         }else{
-                             self.sf_openStatus = SFOpenStatusClose;
-                         }
+//                         if (isOpening) {
+//                             self.sf_openStatus = SFOpenStatusOpened;
+//                         }else{
+//                             self.sf_openStatus = SFOpenStatusClose;
+//                         }
                      }];
 }
 @end

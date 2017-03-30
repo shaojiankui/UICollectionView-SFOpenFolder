@@ -29,13 +29,15 @@ typedef UIView* (^SFContentViewBlock)(id item);
 @interface UICollectionView (SFOpenFolder)
 @property (nonatomic,strong) UIView *sf_contentView;
 @property (assign, nonatomic) SFOpenStatus sf_openStatus;
+@property (strong, nonatomic) NSIndexPath *sf_selectedIndexPath;
 
 - (BOOL)sf_openFolderAtIndexPath:(NSIndexPath *)indexPath
                     contentBlock:(SFContentViewBlock)sf_contentViewBlock
                   beginningBlock:(SFBeginningBlock)sf_beginningBlock
                  completionBlock:(SFCompletionBlock)sf_completionBlock;
 
-- (void)sf_closeViewWithSelectIndexPath:(NSIndexPath *)indexPath;
+- (void)sf_closeViewWithSelectedIndexPath:(void (^)(NSIndexPath *selectedIndexPath))completion;
+- (void)sf_closeViewWithIndexPath:(NSIndexPath *)indexPath completion:(void (^)(void))completion;
 @end
 
 @interface UIView (SFOpenFolderDirection)

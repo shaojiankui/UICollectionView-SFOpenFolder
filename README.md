@@ -40,12 +40,16 @@ UICollectionView+SFOpenFolder,a UICollectionView category,(防苹果系统文件
 ```
 - (void)sectionTouched:(UIButton*)sender{
     //....
-    [self.myCollectionView sf_closeViewWithSelectIndexPath:[NSIndexPath indexPathForRow:0 inSection:sender.tag]];
+    [self.myCollectionView sf_closeViewWithSelectedIndexPath:^(NSIndexPath *selectedIndexPath) {
+          
+        }];
     //....
 }
 ```
 
 # demo
+## when one row have many column
 ![](https://raw.githubusercontent.com/shaojiankui/UICollectionView-SFOpenFolder/master/demo.gif)
 
-
+## when one row have one column
+![](https://raw.githubusercontent.com/shaojiankui/UICollectionView-SFOpenFolder/master/demotableview.gif)

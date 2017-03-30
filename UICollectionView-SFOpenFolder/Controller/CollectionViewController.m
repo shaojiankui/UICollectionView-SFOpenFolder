@@ -69,7 +69,7 @@
     CollectionViewCell *cell = (CollectionViewCell *)[collectionView dequeueReusableCellWithReuseIdentifier:CellIdentifier forIndexPath:indexPath];
 //    NSDictionary *item = [_items objectAtIndex:indexPath.row];
     cell.label.text = [NSString stringWithFormat:@"{%zd,%zd}",indexPath.section,indexPath.row];
-
+    cell.label.backgroundColor = [self jk_randomColor];
     return cell;
 }
 
@@ -89,28 +89,46 @@
 //    [_allHeaders setObject:cell forKey:indexPath];
     return cell;
 }
+#define NUMBER 1
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    CGFloat width = (collectionView.bounds.size.width - 30) / 4;
-    CGFloat height = width;
+    CGFloat width = (collectionView.bounds.size.width) / NUMBER;
+    CGFloat height = 80;
     return CGSizeMake(width, height);
 }
 - (UIEdgeInsets)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout insetForSectionAtIndex:(NSInteger)section
 {
-    CGFloat width = (collectionView.bounds.size.width - 30) / 4;
+    CGFloat width = (collectionView.bounds.size.width) / NUMBER;
     NSInteger numberOfCells = collectionView.bounds.size.width / width;
     NSInteger edgeInsets = (collectionView.bounds.size.width - (numberOfCells * width)) / (numberOfCells + 1);
     
     return UIEdgeInsetsMake(0, edgeInsets, 0, edgeInsets);
 }
 - (void)sectionTouched:(UIButton*)sender{
-    [self.myCollectionView sf_closeViewWithSelectIndexPath:[NSIndexPath indexPathForRow:0 inSection:sender.tag]];
-
     NSMutableDictionary *item = [[_items objectAtIndex:sender.tag] mutableCopy];
     BOOL expand = [[item objectForKey:@"expand"] boolValue];
-    [item setObject:@(!expand) forKey:@"expand"];
-    [_items replaceObjectAtIndex:sender.tag withObject:item];
-    [self.myCollectionView reloadSections:[NSIndexSet indexSetWithIndex:sender.tag]];
+    
+    if (self.myCollectionView.sf_selectedIndexPath.section != sender.tag)
+    {
+        [self.myCollectionView sf_closeViewWithSelectedIndexPath:^(NSIndexPath *selectedIndexPath) {
+            NSMutableDictionary *selectItem = [[_items objectAtIndex:selectedIndexPath.section] mutableCopy];
+            [selectItem setObject:@(NO) forKey:@"expand"];
+            [_items replaceObjectAtIndex:selectedIndexPath.section withObject:selectItem];
+            [self.myCollectionView reloadSections:[NSIndexSet indexSetWithIndex:selectedIndexPath.section]];
+            
+            [item setObject:@(!expand) forKey:@"expand"];
+            [_items replaceObjectAtIndex:sender.tag withObject:item];
+            [self.myCollectionView reloadSections:[NSIndexSet indexSetWithIndex:sender.tag]];
+        }];
+       
+    }else{
+        [self.myCollectionView sf_closeViewWithSelectedIndexPath:^(NSIndexPath *selectedIndexPath) {
+            [item setObject:@(!expand) forKey:@"expand"];
+            [_items replaceObjectAtIndex:sender.tag withObject:item];
+            [self.myCollectionView reloadSections:[NSIndexSet indexSetWithIndex:sender.tag]];
+        }];
+    }
+
 }
 
 
@@ -136,5 +154,13 @@
             NSLog(@"completion  close");
         }
     }];
+}
+
+- (UIColor *)jk_randomColor {
+    NSInteger aRedValue = arc4random() % 255;
+    NSInteger aGreenValue = arc4random() % 255;
+    NSInteger aBlueValue = arc4random() % 255;
+    UIColor *randColor = [UIColor colorWithRed:aRedValue / 255.0f green:aGreenValue / 255.0f blue:aBlueValue / 255.0f alpha:1.0f];
+    return randColor;
 }
 @end
