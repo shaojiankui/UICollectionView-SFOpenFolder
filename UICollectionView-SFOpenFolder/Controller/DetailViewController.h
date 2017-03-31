@@ -9,5 +9,6 @@
 #import <UIKit/UIKit.h>
 
 @interface DetailViewController : UIViewController
+- (IBAction)touched:(id)sender;
 
 @end

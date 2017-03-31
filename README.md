@@ -1,5 +1,5 @@
 # UICollectionView-SFOpenFolder
-UICollectionView+SFOpenFolder,a UICollectionView category,(防苹果系统文件夹展开抽屉效果）like iOS springborad folder expand。
+UICollectionView+SFOpenFolder,a UICollectionView category,(仿苹果系统文件夹展开抽屉效果）like iOS springborad folder expand。
 
 # usage
 ## import
@@ -10,25 +10,30 @@ UICollectionView+SFOpenFolder,a UICollectionView category,(防苹果系统文件
 ## open
 
 ```
+_detail= [[DetailViewController alloc]init];
+[self addChildViewController:_detail];
+```
+
+
+```
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
     [collectionView sf_openFolderAtIndexPath:indexPath contentBlock:^UIView *(id item) {
-        DetailViewController *detail =  [[DetailViewController alloc] init];
-        detail.view.frame = CGRectMake(0, 0, collectionView.frame.size.width, detail.view.frame.size.height);
-        return detail.view;
+        _detail.view.frame = CGRectMake(0, 0, collectionView.frame.size.width, _detail.view.frame.size.height);
+        return _detail.view;
     } beginningBlock:^(SFOpenStatus openStatus) {
-        if (openStatus == SFOpenStatusOpening) {
+        if (openStatus == SFCollectionOpenStatusOpening) {
             NSLog(@"begin opening");
         }
-        if (openStatus == SFOpenStatusClosing) {
+        if (openStatus == SFCollectionOpenStatusClosing) {
             NSLog(@"begin closing");
         }
         
     } completionBlock:^(SFOpenStatus openStatus) {
-        if (openStatus == SFOpenStatusOpened) {
+        if (openStatus == SFCollectionOpenStatusOpened) {
             NSLog(@"completion open");
         }
-        if (openStatus == SFOpenStatusClose) {
+        if (openStatus == SFCollectionOpenStatusClose) {
             NSLog(@"completion  close");
         }
     }];

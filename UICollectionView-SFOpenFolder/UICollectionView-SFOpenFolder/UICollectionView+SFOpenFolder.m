@@ -7,24 +7,26 @@
 //
 
 #import "UICollectionView+SFOpenFolder.h"
-#define SFScreenHeight ([UIScreen mainScreen].bounds.size.height)
-#define SFScreenWidth ([UIScreen mainScreen].bounds.size.width)
+#define SFCollectionScreenHeight ([UIScreen mainScreen].bounds.size.height)
+#define SFCollectionScreenWidth ([UIScreen mainScreen].bounds.size.width)
 
 #import  <objc/runtime.h>
 
 
-static const void *k_sf_openfoler_contentView = &k_sf_openfoler_contentView;
-static const void *k_sf_openfoler_open = &k_sf_openfoler_open;
-static const void *k_sf_openfoler_animationCells = &k_sf_openfoler_animationCells;
-static const void *k_sf_openfoler_animationHeaders = &k_sf_openfoler_animationHeaders;
-static const void *k_sf_openfoler_up = &k_sf_openfoler_up;
-static const void *k_sf_openfoler_down = &k_sf_openfoler_down;
+static const void *k_sf_collection_contentView = &k_sf_collection_contentView;
+static const void *k_sf_collection_open = &k_sf_collection_open;
+static const void *k_sf_collection_animationCells = &k_sf_collection_animationCells;
+static const void *k_sf_collection_animationHeaders = &k_sf_collection_animationHeaders;
+static const void *k_sf_collection_up = &k_sf_collection_up;
+static const void *k_sf_collection_down = &k_sf_collection_down;
 
-static const void *k_sf_openfoler_beginningblock = &k_sf_openfoler_beginningblock;
-static const void *k_sf_openfoler_completionblock = &k_sf_openfoler_completionblock;
-static const void *k_sf_openfoler_contentblock = &k_sf_openfoler_contentblock;
+static const void *k_sf_collection_beginningblock = &k_sf_collection_beginningblock;
+static const void *k_sf_collection_completionblock = &k_sf_collection_completionblock;
+static const void *k_sf_collection_contentblock = &k_sf_collection_contentblock;
 
-static const void *k_sf_openfoler_selectedindexpath = &k_sf_openfoler_selectedindexpath;
+static const void *k_sf_collection_selectedindexpath = &k_sf_collection_selectedindexpath;
+
+static const void *k_sf_collection_direction = &k_sf_collection_direction;
 
 @interface UICollectionView()
 @property (strong, nonatomic) NSMutableArray *sf_animationCells;
@@ -33,9 +35,9 @@ static const void *k_sf_openfoler_selectedindexpath = &k_sf_openfoler_selectedin
 
 @property (assign, nonatomic) CGFloat sf_up;
 @property (assign, nonatomic) CGFloat sf_down;
-@property (copy, nonatomic) SFBeginningBlock sf_beginningBlock;
-@property (copy, nonatomic) SFCompletionBlock sf_completionBlock;
-@property (copy, nonatomic) SFContentViewBlock sf_contentViewBlock;
+@property (copy, nonatomic) SFCollectionBeginningBlock sf_beginningBlock;
+@property (copy, nonatomic) SFCollectionCompletionBlock sf_completionBlock;
+@property (copy, nonatomic) SFCollectionContentViewBlock sf_contentViewBlock;
 @end
 
 @implementation UICollectionView (SFOpenFolder)
@@ -45,7 +47,7 @@ static const void *k_sf_openfoler_selectedindexpath = &k_sf_openfoler_selectedin
 //        @selector(reloadSections:),
 //        @selector(reloadItemsAtIndexPaths:)
 //    };
-//    
+//
 //    for (NSUInteger index = 0; index < sizeof(selectors) / sizeof(SEL); ++index) {
 //        SEL originalSelector = selectors[index];
 //        SEL swizzledSelector = NSSelectorFromString([@"sf_" stringByAppendingString:NSStringFromSelector(originalSelector)]);
@@ -72,66 +74,66 @@ static const void *k_sf_openfoler_selectedindexpath = &k_sf_openfoler_selectedin
 //}
 #pragma mark -- property
 -(NSIndexPath *)sf_selectedIndexPath{
-    return objc_getAssociatedObject(self, k_sf_openfoler_selectedindexpath);
+    return objc_getAssociatedObject(self, k_sf_collection_selectedindexpath);
 }
 -(void)setSf_selectedIndexPath:(NSIndexPath *)sf_selectedIndexPath{
-    objc_setAssociatedObject(self, k_sf_openfoler_selectedindexpath, sf_selectedIndexPath, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(self, k_sf_collection_selectedindexpath, sf_selectedIndexPath, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 - (UIView *)sf_contentView{
-    return objc_getAssociatedObject(self, k_sf_openfoler_contentView);
+    return objc_getAssociatedObject(self, k_sf_collection_contentView);
 }
 - (void)setSf_contentView:(UIView *)sf_contentView{
-    objc_setAssociatedObject(self, k_sf_openfoler_contentView, sf_contentView, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(self, k_sf_collection_contentView, sf_contentView, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 - (SFOpenStatus)sf_openStatus{
-    return (SFOpenStatus)[objc_getAssociatedObject(self, k_sf_openfoler_open) integerValue];
+    return (SFOpenStatus)[objc_getAssociatedObject(self, k_sf_collection_open) integerValue];
 }
 - (void)setSf_openStatus:(SFOpenStatus)sf_openStatus{
-    objc_setAssociatedObject(self,k_sf_openfoler_open, @(sf_openStatus), OBJC_ASSOCIATION_ASSIGN);
+    objc_setAssociatedObject(self,k_sf_collection_open, @(sf_openStatus), OBJC_ASSOCIATION_ASSIGN);
 }
 - (NSMutableArray *)sf_animationCells{
-    return objc_getAssociatedObject(self, k_sf_openfoler_animationCells);
+    return objc_getAssociatedObject(self, k_sf_collection_animationCells);
 }
 - (void)setSf_animationCells:(NSMutableArray *)sf_animationCells{
-    objc_setAssociatedObject(self,k_sf_openfoler_animationCells, sf_animationCells, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(self,k_sf_collection_animationCells, sf_animationCells, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 - (NSMutableArray *)sf_animationHeaders{
-    return objc_getAssociatedObject(self, k_sf_openfoler_animationHeaders);
+    return objc_getAssociatedObject(self, k_sf_collection_animationHeaders);
 }
 - (void)setSf_animationHeaders:(NSMutableArray *)sf_animationHeaders{
-    objc_setAssociatedObject(self,k_sf_openfoler_animationHeaders, sf_animationHeaders, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(self,k_sf_collection_animationHeaders, sf_animationHeaders, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 - (CGFloat)sf_up{
-    return [objc_getAssociatedObject(self, k_sf_openfoler_up) floatValue];
+    return [objc_getAssociatedObject(self, k_sf_collection_up) floatValue];
 }
 - (void)setSf_up:(CGFloat)sf_up{
-    objc_setAssociatedObject(self,k_sf_openfoler_up, @(sf_up), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(self,k_sf_collection_up, @(sf_up), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 - (CGFloat)sf_down{
-    return [objc_getAssociatedObject(self, k_sf_openfoler_down) floatValue];
+    return [objc_getAssociatedObject(self, k_sf_collection_down) floatValue];
 }
 - (void)setSf_down:(CGFloat)sf_down{
-    objc_setAssociatedObject(self,k_sf_openfoler_down, @(sf_down), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(self,k_sf_collection_down, @(sf_down), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
-- (SFBeginningBlock)sf_beginningBlock{
-    return objc_getAssociatedObject(self, k_sf_openfoler_beginningblock);
+- (SFCollectionBeginningBlock)sf_beginningBlock{
+    return objc_getAssociatedObject(self, k_sf_collection_beginningblock);
 }
-- (void)setSf_beginningBlock:(SFBeginningBlock)sf_beginningBlock{
-    objc_setAssociatedObject(self,k_sf_openfoler_beginningblock,sf_beginningBlock, OBJC_ASSOCIATION_COPY_NONATOMIC);
-}
-
-- (SFCompletionBlock)sf_completionBlock{
-    return objc_getAssociatedObject(self, k_sf_openfoler_completionblock);
-}
-- (void)setSf_completionBlock:(SFCompletionBlock)sf_completionBlock{
-    objc_setAssociatedObject(self,k_sf_openfoler_completionblock,sf_completionBlock, OBJC_ASSOCIATION_COPY_NONATOMIC);
+- (void)setSf_beginningBlock:(SFCollectionBeginningBlock)sf_beginningBlock{
+    objc_setAssociatedObject(self,k_sf_collection_beginningblock,sf_beginningBlock, OBJC_ASSOCIATION_COPY_NONATOMIC);
 }
 
-- (SFContentViewBlock)sf_contentViewBlock{
-    return objc_getAssociatedObject(self, k_sf_openfoler_contentblock);
+- (SFCollectionCompletionBlock)sf_completionBlock{
+    return objc_getAssociatedObject(self, k_sf_collection_completionblock);
 }
-- (void)setSf_contentViewBlock:(SFContentViewBlock)sf_contentViewBlock{
-    objc_setAssociatedObject(self,k_sf_openfoler_contentblock,sf_contentViewBlock, OBJC_ASSOCIATION_COPY_NONATOMIC);
+- (void)setSf_completionBlock:(SFCollectionCompletionBlock)sf_completionBlock{
+    objc_setAssociatedObject(self,k_sf_collection_completionblock,sf_completionBlock, OBJC_ASSOCIATION_COPY_NONATOMIC);
+}
+
+- (SFCollectionContentViewBlock)sf_contentViewBlock{
+    return objc_getAssociatedObject(self, k_sf_collection_contentblock);
+}
+- (void)setSf_contentViewBlock:(SFCollectionContentViewBlock)sf_contentViewBlock{
+    objc_setAssociatedObject(self,k_sf_collection_contentblock,sf_contentViewBlock, OBJC_ASSOCIATION_COPY_NONATOMIC);
 }
 
 #pragma mark -
@@ -144,32 +146,32 @@ static const void *k_sf_openfoler_selectedindexpath = &k_sf_openfoler_selectedin
     }];
 }
 - (BOOL)sf_openFolderAtIndexPath:(NSIndexPath *)indexPath
-                    contentBlock:(SFContentViewBlock)sf_contentViewBlock
-                  beginningBlock:(SFBeginningBlock)sf_beginningBlock
-                 completionBlock:(SFCompletionBlock)sf_completionBlock{
+                    contentBlock:(SFCollectionContentViewBlock)sf_contentViewBlock
+                  beginningBlock:(SFCollectionBeginningBlock)sf_beginningBlock
+                 completionBlock:(SFCollectionCompletionBlock)sf_completionBlock{
     self.sf_beginningBlock = [sf_beginningBlock copy];
     self.sf_completionBlock = [sf_completionBlock copy];
     self.sf_contentViewBlock = [sf_contentViewBlock copy];
     self.sf_selectedIndexPath = indexPath;
     
-    if (self.sf_openStatus == SFOpenStatusOpening) {
+    if (self.sf_openStatus == SFCollectionOpenStatusOpening) {
         return YES;
     }
-    if (self.sf_openStatus ==  SFOpenStatusOpened) {
+    if (self.sf_openStatus ==  SFCollectionOpenStatusOpened) {
         if (self.sf_beginningBlock) {
-            self.sf_beginningBlock(SFOpenStatusOpening);
+            self.sf_beginningBlock(SFCollectionOpenStatusOpening);
         }
         [self sf_closeViewWithIndexPath:indexPath completion:nil];
     }
     
-    if (self.sf_openStatus == SFOpenStatusClose) {
+    if (self.sf_openStatus == SFCollectionOpenStatusClose) {
         if (self.sf_contentViewBlock) {
             self.sf_contentView = self.sf_contentViewBlock(nil);
         }else{
             UIView *view = [[UIView alloc]initWithFrame:CGRectMake(0, 0, 200, 200)];
             self.sf_contentView = view;
         }
-       
+        
         if (!self.sf_animationCells) {
             self.sf_animationCells = [NSMutableArray array];
         }
@@ -177,19 +179,19 @@ static const void *k_sf_openfoler_selectedindexpath = &k_sf_openfoler_selectedin
             self.sf_animationHeaders = [NSMutableArray array];
         }
         if (self.sf_beginningBlock) {
-            self.sf_beginningBlock(SFOpenStatusClosing);
+            self.sf_beginningBlock(SFCollectionOpenStatusClosing);
         }
         [self sf_openViewWithSelectIndexPath:indexPath];
-       
+        
     }
-//    NSLog(@"open status:%zd",self.sf_openStatus);
+    //    NSLog(@"open status:%zd",self.sf_openStatus);
     return YES;
 }
 - (void)sf_openViewWithSelectIndexPath:(NSIndexPath *)indexPath
 {
-   
+    
     CGFloat bottomY = [self sf_offsetBottomWithIndexPath:indexPath];
-//    NSLog(@"bottomY:%lf",bottomY);
+    //    NSLog(@"bottomY:%lf",bottomY);
     
     if (bottomY >= self.sf_contentView.frame.size.height)
     {
@@ -202,13 +204,14 @@ static const void *k_sf_openfoler_selectedindexpath = &k_sf_openfoler_selectedin
         self.sf_contentView.frame = CGRectMake(0, CGRectGetMaxY(selectCellFinalFrame), self.sf_contentView.frame.size.width,0);
         self.sf_contentView.clipsToBounds = YES;
         [self addSubview:self.sf_contentView];
-        [UIView animateWithDuration:SFCellMoveDuration animations:^{
+        
+        [UIView animateWithDuration:SFCollectionCellMoveDuration animations:^{
             self.sf_contentView.frame = CGRectMake(0, CGRectGetMaxY(selectCellFinalFrame), self.sf_contentView.frame.size.width,contentHeight);
         } completion:^(BOOL finished) {
             //完成状态
             if (self.sf_completionBlock) {
-                self.sf_completionBlock(SFOpenStatusOpened);
-                self.sf_openStatus = SFOpenStatusOpened;
+                self.sf_completionBlock(SFCollectionOpenStatusOpened);
+                self.sf_openStatus = SFCollectionOpenStatusOpened;
             }
         }];
     }
@@ -220,22 +223,22 @@ static const void *k_sf_openfoler_selectedindexpath = &k_sf_openfoler_selectedin
         self.sf_down = bottomY;
         [self sf_moveUPandDownFromIndexPath:indexPath];
         CGRect selectCelFinalFrame =  [self cellForItemAtIndexPath:indexPath].frame;
-      
+        
         CGFloat contentHeight = self.sf_contentView.frame.size.height;
         self.sf_contentView.frame = CGRectMake(0, CGRectGetMaxY(selectCelOldFrame), self.sf_contentView.frame.size.width,0);
         self.sf_contentView.clipsToBounds = YES;
         [self addSubview:self.sf_contentView];
-        [UIView animateWithDuration:SFCellMoveDuration animations:^{
+        [UIView animateWithDuration:SFCollectionCellMoveDuration animations:^{
             self.sf_contentView.frame = CGRectMake(0, CGRectGetMaxY(selectCelFinalFrame), self.sf_contentView.frame.size.width,contentHeight);
         } completion:^(BOOL finished) {
             //完成状态
             if (self.sf_completionBlock) {
-                self.sf_completionBlock(SFOpenStatusOpened);
-                self.sf_openStatus = SFOpenStatusOpened;
+                self.sf_completionBlock(SFCollectionOpenStatusOpened);
+                self.sf_openStatus = SFCollectionOpenStatusOpened;
             }
         }];
     }
-   
+    
     self.scrollEnabled = NO;
 }
 - (void)sf_moveDownFromIndexPath:(NSIndexPath *)indexPath{
@@ -250,16 +253,16 @@ static const void *k_sf_openfoler_selectedindexpath = &k_sf_openfoler_selectedin
         
         if ((path.section > indexPath.section))
         {
-            [self sf_animateView:moveCell WithDirection:SFMoveDirectionDown distance:self.sf_down isOpening:YES];
+            [self sf_animateView:moveCell WithDirection:SFCollectionMoveDirectionDown distance:self.sf_down isOpening:YES];
             [self.sf_animationCells addObject:moveCell];
         }
         else if ((path.section  == indexPath.section) && (path.row > indexPath.row) && selectCell.frame.origin.y != moveCell.frame.origin.y){
-            [self sf_animateView:moveCell WithDirection:SFMoveDirectionDown distance:self.sf_down isOpening:YES];
+            [self sf_animateView:moveCell WithDirection:SFCollectionMoveDirectionDown distance:self.sf_down isOpening:YES];
             [self.sf_animationCells addObject:moveCell];
         }
         else
         {
-            self.sf_openStatus = SFOpenStatusOpened;
+            self.sf_openStatus = SFCollectionOpenStatusOpened;
         }
         
         if (path.row != indexPath.row)
@@ -277,7 +280,7 @@ static const void *k_sf_openfoler_selectedindexpath = &k_sf_openfoler_selectedin
             UICollectionReusableView *sectionHeader = [self supplementaryViewForElementKind:UICollectionElementKindSectionHeader atIndexPath:index];
             
             if (sectionHeader) {
-                [self sf_animateView:sectionHeader WithDirection:SFMoveDirectionDown distance:self.sf_down isOpening:YES];
+                [self sf_animateView:sectionHeader WithDirection:SFCollectionMoveDirectionDown distance:self.sf_down isOpening:YES];
                 [self.sf_animationHeaders addObject:sectionHeader];
             }
         }
@@ -295,7 +298,7 @@ static const void *k_sf_openfoler_selectedindexpath = &k_sf_openfoler_selectedin
         
         if ((path.section < indexPath.section))
         {
-            [self sf_animateView:moveCell WithDirection:SFMoveDirectionUp distance:self.sf_up isOpening:YES];
+            [self sf_animateView:moveCell WithDirection:SFCollectionMoveDirectionUp distance:self.sf_up isOpening:YES];
             [self.sf_animationCells addObject:moveCell];
             
         }
@@ -305,34 +308,34 @@ static const void *k_sf_openfoler_selectedindexpath = &k_sf_openfoler_selectedin
             //                NSLog(@"{move:%zd,%zd}",path.section,path.row);
             
             if ((path.row <= indexPath.row)) {
-                [self sf_animateView:moveCell WithDirection:SFMoveDirectionUp distance:self.sf_up isOpening:YES];
+                [self sf_animateView:moveCell WithDirection:SFCollectionMoveDirectionUp distance:self.sf_up isOpening:YES];
                 [self.sf_animationCells addObject:moveCell];
                 
             }else{
                 CGRect m =  [self layoutAttributesForItemAtIndexPath:path].frame;
                 if ((m.origin.y  - selectCellFrame.origin.y != 0)) {
-                    [self sf_animateView:moveCell WithDirection:SFMoveDirectionDown distance:self.sf_down isOpening:YES];
+                    [self sf_animateView:moveCell WithDirection:SFCollectionMoveDirectionDown distance:self.sf_down isOpening:YES];
                     [self.sf_animationCells addObject:moveCell];
                 }else{
-                    [self sf_animateView:moveCell WithDirection:SFMoveDirectionUp distance:self.sf_up isOpening:YES];
+                    [self sf_animateView:moveCell WithDirection:SFCollectionMoveDirectionUp distance:self.sf_up isOpening:YES];
                     [self.sf_animationCells addObject:moveCell];
                 }
             }
         }
         else
         {
-            [self sf_animateView:moveCell WithDirection:SFMoveDirectionDown distance:self.sf_down isOpening:YES];
+            [self sf_animateView:moveCell WithDirection:SFCollectionMoveDirectionDown distance:self.sf_down isOpening:YES];
             [self.sf_animationCells addObject:moveCell];
         }
         if (path.row != indexPath.row)
         {
             //改变当前cell样式;
         }
-//        //完成状态
-//        if ((moveCell == [self.sf_animationCells lastObject]) && self.sf_completionBlock) {
-//            self.sf_completionBlock(SFOpenStatusOpened);
-//            self.sf_openStatus = SFOpenStatusOpened;
-//        }
+        //        //完成状态
+        //        if ((moveCell == [self.sf_animationCells lastObject]) && self.sf_completionBlock) {
+        //            self.sf_completionBlock(SFOpenStatusOpened);
+        //            self.sf_openStatus = SFOpenStatusOpened;
+        //        }
     }];
     
     [visibleSections enumerateObjectsUsingBlock:^(NSIndexPath *index, NSUInteger idx, BOOL *stop) {
@@ -342,11 +345,11 @@ static const void *k_sf_openfoler_selectedindexpath = &k_sf_openfoler_selectedin
         {
             if ((index.section < indexPath.section))
             {
-                [self sf_animateView:sectionHeader WithDirection:SFMoveDirectionUp distance:self.sf_up isOpening:YES];
+                [self sf_animateView:sectionHeader WithDirection:SFCollectionMoveDirectionUp distance:self.sf_up isOpening:YES];
             }else if (index.section  == indexPath.section) {
-                [self sf_animateView:sectionHeader WithDirection:SFMoveDirectionUp distance:self.sf_up isOpening:YES];
+                [self sf_animateView:sectionHeader WithDirection:SFCollectionMoveDirectionUp distance:self.sf_up isOpening:YES];
             }else{
-                [self sf_animateView:sectionHeader WithDirection:SFMoveDirectionDown distance:self.sf_down isOpening:YES];
+                [self sf_animateView:sectionHeader WithDirection:SFCollectionMoveDirectionDown distance:self.sf_down isOpening:YES];
             }
             [self.sf_animationHeaders addObject:sectionHeader];
         }
@@ -357,7 +360,7 @@ static const void *k_sf_openfoler_selectedindexpath = &k_sf_openfoler_selectedin
 #pragma mark -- Close Method
 - (void)sf_closeViewWithIndexPath:(NSIndexPath *)indexPath completion:(void (^)(void))completion
 {
-    if (self.sf_openStatus == SFOpenStatusClose) {
+    if (self.sf_openStatus == SFCollectionOpenStatusClose) {
         if (completion) {
             completion();
         }
@@ -366,71 +369,75 @@ static const void *k_sf_openfoler_selectedindexpath = &k_sf_openfoler_selectedin
     }
     NSLog(@"关闭");
     [self.sf_animationCells enumerateObjectsUsingBlock:^(UICollectionViewCell *moveCell, NSUInteger idx, BOOL *stop) {
-        if (moveCell.sf_direction == SFMoveDirectionUp)
+        if (moveCell.sf_collection_direction == SFCollectionMoveDirectionUp)
         {
-            [self sf_animateView:moveCell WithDirection:SFMoveDirectionDown distance:self.sf_up isOpening:NO];
+            [self sf_animateView:moveCell WithDirection:SFCollectionMoveDirectionDown distance:self.sf_up isOpening:NO];
         }
         else
         {
-            [self sf_animateView:moveCell WithDirection:SFMoveDirectionUp distance:self.sf_down  isOpening:NO];
+            [self sf_animateView:moveCell WithDirection:SFCollectionMoveDirectionUp distance:self.sf_down  isOpening:NO];
         }
     }];
     
     
     [self.sf_animationHeaders enumerateObjectsUsingBlock:^(UICollectionReusableView *moveCell, NSUInteger idx, BOOL *stop) {
-        if (moveCell.sf_direction == SFMoveDirectionUp)
+        if (moveCell.sf_collection_direction == SFCollectionMoveDirectionUp)
         {
-            [self sf_animateView:moveCell WithDirection:SFMoveDirectionDown distance:self.sf_up  isOpening:NO];
+            [self sf_animateView:moveCell WithDirection:SFCollectionMoveDirectionDown distance:self.sf_up  isOpening:NO];
         }
         else
         {
-            [self sf_animateView:moveCell WithDirection:SFMoveDirectionUp distance:self.sf_down  isOpening:NO];
+            [self sf_animateView:moveCell WithDirection:SFCollectionMoveDirectionUp distance:self.sf_down  isOpening:NO];
         }
     }];
     
+    CGRect oldFrame = self.sf_contentView.frame;
+    
     if (self.sf_up==0) {
-        [UIView animateWithDuration:SFCellMoveDuration animations:^{
+        [UIView animateWithDuration:SFCollectionCellMoveDuration animations:^{
             self.sf_contentView.frame = CGRectMake(self.sf_contentView.frame.origin.x, self.sf_contentView.frame.origin.y, self.sf_contentView.frame.size.width,0);
         } completion:^(BOOL finished) {
+            self.sf_contentView.frame = oldFrame;
             [self.sf_contentView removeFromSuperview];
             if (self.sf_completionBlock) {
-                self.sf_completionBlock(SFOpenStatusClose);
-                self.sf_openStatus = SFOpenStatusClose;
+                self.sf_completionBlock(SFCollectionOpenStatusClose);
+                self.sf_openStatus = SFCollectionOpenStatusClose;
             }
             if (completion) {
                 completion();
             }
         }];
     }else{
-        [UIView animateWithDuration:SFCellMoveDuration animations:^{
+        [UIView animateWithDuration:SFCollectionCellMoveDuration animations:^{
             CGRect frame = self.sf_contentView.frame;
             frame.origin.y = frame.origin.y + self.sf_up;
             self.sf_contentView.frame = frame;
-            [UIView animateWithDuration:SFCellMoveDuration animations:^{
+            [UIView animateWithDuration:SFCollectionCellMoveDuration animations:^{
                 CGRect frame = self.sf_contentView.frame;
                 frame.size.height = 0;
                 self.sf_contentView.frame = frame;
             } completion:^(BOOL finished) {
+                self.sf_contentView.frame = oldFrame;
                 [self.sf_contentView removeFromSuperview];
             }];
         } completion:^(BOOL finished) {
             [self.sf_contentView removeFromSuperview];
             if (self.sf_completionBlock) {
-                self.sf_completionBlock(SFOpenStatusClose);
-                self.sf_openStatus = SFOpenStatusClose;
+                self.sf_completionBlock(SFCollectionOpenStatusClose);
+                self.sf_openStatus = SFCollectionOpenStatusClose;
             }
             if (completion) {
                 completion();
             }
         }];
     }
-  
     
-//    NSArray *paths = [collectionView indexPathsForVisibleItems];
-//    for (NSIndexPath *path in paths)
-//    {
-//      //更改除选中cell之外的cell样式
-//    }
+    
+    //    NSArray *paths = [collectionView indexPathsForVisibleItems];
+    //    for (NSIndexPath *path in paths)
+    //    {
+    //      //更改除选中cell之外的cell样式
+    //    }
     [self sf_clean];
 }
 - (void)sf_clean{
@@ -446,7 +453,7 @@ static const void *k_sf_openfoler_selectedindexpath = &k_sf_openfoler_selectedin
 #pragma mark Actions
 - (CGFloat)sf_offsetBottomWithIndexPath:(NSIndexPath *)indexPath
 {
-//    CGFloat screenHeight = SFScreenHeight - SFNaviBarHeight;
+    //    CGFloat screenHeight = SFScreenHeight - SFNaviBarHeight;
     CGFloat screenHeight = self.frame.size.height;
     CGRect cellFrame = [self layoutAttributesForItemAtIndexPath:indexPath].frame;;
     CGFloat frameY = cellFrame.origin.y;
@@ -455,16 +462,16 @@ static const void *k_sf_openfoler_selectedindexpath = &k_sf_openfoler_selectedin
     return bottomY;
 }
 
-- (void)sf_animateView:(UIView *)view WithDirection:(SFMoveDirection)direction distance:(CGFloat)dis isOpening:(BOOL)isOpening
+- (void)sf_animateView:(UIView *)view WithDirection:(SFCollectionMoveDirection)direction distance:(CGFloat)dis isOpening:(BOOL)isOpening
 {
     CGRect newFrame = view.frame;
-    view.sf_direction = direction;
+    view.sf_collection_direction = direction;
     switch (direction)
     {
-        case SFMoveDirectionUp:
+        case SFCollectionMoveDirectionUp:
             newFrame.origin.y -= dis;
             break;
-        case SFMoveDirectionDown:
+        case SFCollectionMoveDirectionDown:
             newFrame.origin.y += dis;
             break;
         default:NSAssert(NO, @"无法识别的方向");
@@ -472,30 +479,30 @@ static const void *k_sf_openfoler_selectedindexpath = &k_sf_openfoler_selectedin
     }
     
     if (isOpening) {
-        self.sf_openStatus = SFOpenStatusOpening;
+        self.sf_openStatus = SFCollectionOpenStatusOpening;
     }else{
-        self.sf_openStatus = SFOpenStatusClosing;
+        self.sf_openStatus = SFCollectionOpenStatusClosing;
     }
-
-    [UIView animateWithDuration:SFCellMoveDuration
+    
+    [UIView animateWithDuration:SFCollectionCellMoveDuration
                      animations:^{
                          view.frame = newFrame;
                      } completion:^(BOOL finished) {
-//                         if (isOpening) {
-//                             self.sf_openStatus = SFOpenStatusOpened;
-//                         }else{
-//                             self.sf_openStatus = SFOpenStatusClose;
-//                         }
+                         //                         if (isOpening) {
+                         //                             self.sf_openStatus = SFOpenStatusOpened;
+                         //                         }else{
+                         //                             self.sf_openStatus = SFOpenStatusClose;
+                         //                         }
                      }];
 }
 @end
 
 @implementation UIView (SFOpenFolderDirection)
-- (SFMoveDirection)sf_direction{
-    return (SFMoveDirection)[objc_getAssociatedObject(self, k_sf_openfoler_down) integerValue];
+- (SFCollectionMoveDirection)sf_collection_direction{
+    return (SFCollectionMoveDirection)[objc_getAssociatedObject(self, k_sf_collection_direction) integerValue];
 }
-- (void)setSf_direction:(SFMoveDirection)sf_direction{
-    objc_setAssociatedObject(self,k_sf_openfoler_down, @(sf_direction), OBJC_ASSOCIATION_ASSIGN);
+- (void)setSf_collection_direction:(SFCollectionMoveDirection)sf_collection_direction{
+    objc_setAssociatedObject(self,k_sf_collection_direction, @(sf_collection_direction), OBJC_ASSOCIATION_ASSIGN);
 }
 @end
 

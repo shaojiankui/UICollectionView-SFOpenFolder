@@ -16,6 +16,8 @@
 @interface CollectionViewController ()
 {
     NSMutableArray *_items;
+    DetailViewController *_detail;
+
 }
 @end
 
@@ -28,7 +30,10 @@
     
     [self.myCollectionView registerNib:[UINib nibWithNibName:@"CollectionViewHeader" bundle:nil] forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"CollectionViewHeader"];
 
-    
+    if (!_detail) {
+        _detail= [[DetailViewController alloc]init];
+        [self addChildViewController:_detail];
+    }
     _items = [NSMutableArray array];
     for (int i=0; i<5; i++) {
         NSMutableArray *array = [NSMutableArray array];
@@ -89,7 +94,7 @@
 //    [_allHeaders setObject:cell forKey:indexPath];
     return cell;
 }
-#define NUMBER 1
+#define NUMBER 4
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath
 {
     CGFloat width = (collectionView.bounds.size.width) / NUMBER;
@@ -128,29 +133,27 @@
             [self.myCollectionView reloadSections:[NSIndexSet indexSetWithIndex:sender.tag]];
         }];
     }
-
 }
 
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
     [collectionView sf_openFolderAtIndexPath:indexPath contentBlock:^UIView *(id item) {
-        DetailViewController *detail =  [[DetailViewController alloc] init];
-        detail.view.frame = CGRectMake(0, 0, collectionView.frame.size.width, detail.view.frame.size.height);
-        return detail.view;
+        _detail.view.frame = CGRectMake(0, 0, collectionView.frame.size.width, _detail.view.frame.size.height);
+        return _detail.view;
     } beginningBlock:^(SFOpenStatus openStatus) {
-        if (openStatus == SFOpenStatusOpening) {
+        if (openStatus == SFCollectionOpenStatusOpening) {
             NSLog(@"begin opening");
         }
-        if (openStatus == SFOpenStatusClosing) {
+        if (openStatus == SFCollectionOpenStatusClosing) {
             NSLog(@"begin closing");
         }
         
     } completionBlock:^(SFOpenStatus openStatus) {
-        if (openStatus == SFOpenStatusOpened) {
+        if (openStatus == SFCollectionOpenStatusOpened) {
             NSLog(@"completion open");
         }
-        if (openStatus == SFOpenStatusClose) {
+        if (openStatus == SFCollectionOpenStatusClose) {
             NSLog(@"completion  close");
         }
     }];

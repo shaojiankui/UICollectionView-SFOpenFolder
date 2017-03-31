@@ -34,4 +34,7 @@
 }
 */
 
+- (IBAction)touched:(id)sender {
+    NSLog(@"touched");
+}
 @end
