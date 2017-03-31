@@ -27,10 +27,13 @@ static const void *k_sf_collection_contentblock = &k_sf_collection_contentblock;
 static const void *k_sf_collection_selectedindexpath = &k_sf_collection_selectedindexpath;
 static const void *k_sf_collection_direction = &k_sf_collection_direction;
 static const void *k_sf_collection_duration = &k_sf_collection_duration;
+static const void *k_sf_collection_content_frame = &k_sf_collection_content_frame;
 
 @interface UICollectionView()
 @property (strong, nonatomic) NSMutableArray *sf_animationCells;
 @property (strong, nonatomic) NSMutableArray *sf_animationHeaders;
+@property (assign, nonatomic) CGRect sf_collection_content_frame;
+
 //@property (strong, nonatomic) NSMutableArray *sf_animationFooters; //todo
 
 @property (assign, nonatomic) CGFloat sf_collection_open_up;
@@ -142,6 +145,13 @@ static const void *k_sf_collection_duration = &k_sf_collection_duration;
 - (void)setSf_collection_open_duration:(NSTimeInterval)sf_collection_open_duration{
     objc_setAssociatedObject(self,k_sf_collection_duration, @(sf_collection_open_duration), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
+
+- (CGRect)sf_table_content_frame{
+    return CGRectFromString([objc_getAssociatedObject(self, k_sf_collection_content_frame) description]);
+}
+- (void)setSf_table_content_frame:(CGRect)sf_table_content_frame{
+    objc_setAssociatedObject(self,k_sf_collection_content_frame, NSStringFromCGRect(sf_table_content_frame), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
 #pragma mark -
 #pragma mark -- Opend Method
 - (void)sf_closeViewWithSelectedIndexPath:(void (^)(NSIndexPath *selectedIndexPath))completion
@@ -189,6 +199,7 @@ static const void *k_sf_collection_duration = &k_sf_collection_duration;
             UIView *view = [[UIView alloc]initWithFrame:CGRectMake(0, 0, 200, 200)];
             self.sf_contentView = view;
         }
+        self.sf_table_content_frame = self.sf_contentView.frame;
         
         if (!self.sf_animationCells) {
             self.sf_animationCells = [NSMutableArray array];
@@ -409,13 +420,11 @@ static const void *k_sf_collection_duration = &k_sf_collection_duration;
         }
     }];
     
-    CGRect oldFrame = self.sf_contentView.frame;
-    
     if (self.sf_collection_open_up==0) {
         [UIView animateWithDuration:self.sf_collection_open_duration animations:^{
             self.sf_contentView.frame = CGRectMake(self.sf_contentView.frame.origin.x, self.sf_contentView.frame.origin.y, self.sf_contentView.frame.size.width,0);
         } completion:^(BOOL finished) {
-            self.sf_contentView.frame = oldFrame;
+            self.sf_contentView.frame = self.sf_table_content_frame;
             [self.sf_contentView removeFromSuperview];
             if (self.sf_completionBlock) {
                 self.sf_completionBlock(SFCollectionOpenStatusClose);
@@ -435,10 +444,11 @@ static const void *k_sf_collection_duration = &k_sf_collection_duration;
                 frame.size.height = 0;
                 self.sf_contentView.frame = frame;
             } completion:^(BOOL finished) {
-                self.sf_contentView.frame = oldFrame;
+                self.sf_contentView.frame = self.sf_table_content_frame;
                 [self.sf_contentView removeFromSuperview];
             }];
         } completion:^(BOOL finished) {
+            self.sf_contentView.frame = self.sf_table_content_frame;
             [self.sf_contentView removeFromSuperview];
             if (self.sf_completionBlock) {
                 self.sf_completionBlock(SFCollectionOpenStatusClose);
