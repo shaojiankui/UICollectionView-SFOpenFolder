@@ -25,16 +25,17 @@ static const void *k_sf_collection_completionblock = &k_sf_collection_completion
 static const void *k_sf_collection_contentblock = &k_sf_collection_contentblock;
 
 static const void *k_sf_collection_selectedindexpath = &k_sf_collection_selectedindexpath;
-
 static const void *k_sf_collection_direction = &k_sf_collection_direction;
+static const void *k_sf_collection_duration = &k_sf_collection_duration;
 
 @interface UICollectionView()
 @property (strong, nonatomic) NSMutableArray *sf_animationCells;
 @property (strong, nonatomic) NSMutableArray *sf_animationHeaders;
 //@property (strong, nonatomic) NSMutableArray *sf_animationFooters; //todo
 
-@property (assign, nonatomic) CGFloat sf_up;
-@property (assign, nonatomic) CGFloat sf_down;
+@property (assign, nonatomic) CGFloat sf_collection_open_up;
+@property (assign, nonatomic) CGFloat sf_collection_open_down;
+@property (assign, nonatomic) NSTimeInterval sf_collection_open_duration;
 @property (copy, nonatomic) SFCollectionBeginningBlock sf_beginningBlock;
 @property (copy, nonatomic) SFCollectionCompletionBlock sf_completionBlock;
 @property (copy, nonatomic) SFCollectionContentViewBlock sf_contentViewBlock;
@@ -85,10 +86,10 @@ static const void *k_sf_collection_direction = &k_sf_collection_direction;
 - (void)setSf_contentView:(UIView *)sf_contentView{
     objc_setAssociatedObject(self, k_sf_collection_contentView, sf_contentView, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
-- (SFOpenStatus)sf_openStatus{
-    return (SFOpenStatus)[objc_getAssociatedObject(self, k_sf_collection_open) integerValue];
+- (SFCollectionOpenStatus)sf_openStatus{
+    return (SFCollectionOpenStatus)[objc_getAssociatedObject(self, k_sf_collection_open) integerValue];
 }
-- (void)setSf_openStatus:(SFOpenStatus)sf_openStatus{
+- (void)setSf_openStatus:(SFCollectionOpenStatus)sf_openStatus{
     objc_setAssociatedObject(self,k_sf_collection_open, @(sf_openStatus), OBJC_ASSOCIATION_ASSIGN);
 }
 - (NSMutableArray *)sf_animationCells{
@@ -103,17 +104,17 @@ static const void *k_sf_collection_direction = &k_sf_collection_direction;
 - (void)setSf_animationHeaders:(NSMutableArray *)sf_animationHeaders{
     objc_setAssociatedObject(self,k_sf_collection_animationHeaders, sf_animationHeaders, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
-- (CGFloat)sf_up{
+- (CGFloat)sf_collection_open_up{
     return [objc_getAssociatedObject(self, k_sf_collection_up) floatValue];
 }
-- (void)setSf_up:(CGFloat)sf_up{
-    objc_setAssociatedObject(self,k_sf_collection_up, @(sf_up), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+- (void)setSf_collection_open_up:(CGFloat)sf_collection_open_up{
+    objc_setAssociatedObject(self,k_sf_collection_up, @(sf_collection_open_up), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
-- (CGFloat)sf_down{
+- (CGFloat)sf_collection_open_down{
     return [objc_getAssociatedObject(self, k_sf_collection_down) floatValue];
 }
-- (void)setSf_down:(CGFloat)sf_down{
-    objc_setAssociatedObject(self,k_sf_collection_down, @(sf_down), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+- (void)setSf_collection_open_down:(CGFloat)sf_collection_open_down{
+    objc_setAssociatedObject(self,k_sf_collection_down, @(sf_collection_open_down), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 - (SFCollectionBeginningBlock)sf_beginningBlock{
     return objc_getAssociatedObject(self, k_sf_collection_beginningblock);
@@ -135,7 +136,12 @@ static const void *k_sf_collection_direction = &k_sf_collection_direction;
 - (void)setSf_contentViewBlock:(SFCollectionContentViewBlock)sf_contentViewBlock{
     objc_setAssociatedObject(self,k_sf_collection_contentblock,sf_contentViewBlock, OBJC_ASSOCIATION_COPY_NONATOMIC);
 }
-
+- (NSTimeInterval)sf_collection_open_duration{
+    return [objc_getAssociatedObject(self, k_sf_collection_duration) doubleValue];
+}
+- (void)setSf_collection_open_duration:(NSTimeInterval)sf_collection_open_duration{
+    objc_setAssociatedObject(self,k_sf_collection_duration, @(sf_collection_open_duration), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
 #pragma mark -
 #pragma mark -- Opend Method
 - (void)sf_closeViewWithSelectedIndexPath:(void (^)(NSIndexPath *selectedIndexPath))completion
@@ -149,11 +155,23 @@ static const void *k_sf_collection_direction = &k_sf_collection_direction;
                     contentBlock:(SFCollectionContentViewBlock)sf_contentViewBlock
                   beginningBlock:(SFCollectionBeginningBlock)sf_beginningBlock
                  completionBlock:(SFCollectionCompletionBlock)sf_completionBlock{
+   return [self sf_openFolderAtIndexPath:indexPath
+                                duration:SFCollectionCellMoveDuration
+                            contentBlock:sf_contentViewBlock
+                          beginningBlock:sf_beginningBlock
+                         completionBlock:sf_completionBlock];
+}
+- (BOOL)sf_openFolderAtIndexPath:(NSIndexPath *)indexPath
+                        duration:(NSTimeInterval)duration
+                    contentBlock:(SFCollectionContentViewBlock)sf_contentViewBlock
+                  beginningBlock:(SFCollectionBeginningBlock)sf_beginningBlock
+                 completionBlock:(SFCollectionCompletionBlock)sf_completionBlock{
     self.sf_beginningBlock = [sf_beginningBlock copy];
     self.sf_completionBlock = [sf_completionBlock copy];
     self.sf_contentViewBlock = [sf_contentViewBlock copy];
     self.sf_selectedIndexPath = indexPath;
-    
+    self.sf_collection_open_duration = duration;
+
     if (self.sf_openStatus == SFCollectionOpenStatusOpening) {
         return YES;
     }
@@ -196,7 +214,7 @@ static const void *k_sf_collection_direction = &k_sf_collection_direction;
     if (bottomY >= self.sf_contentView.frame.size.height)
     {
         
-        self.sf_down = self.sf_contentView.frame.size.height;
+        self.sf_collection_open_down = self.sf_contentView.frame.size.height;
         [self sf_moveDownFromIndexPath:indexPath];
         //增加contentview
         CGRect selectCellFinalFrame =  [self cellForItemAtIndexPath:indexPath].frame;
@@ -205,7 +223,7 @@ static const void *k_sf_collection_direction = &k_sf_collection_direction;
         self.sf_contentView.clipsToBounds = YES;
         [self addSubview:self.sf_contentView];
         
-        [UIView animateWithDuration:SFCollectionCellMoveDuration animations:^{
+        [UIView animateWithDuration:self.sf_collection_open_duration animations:^{
             self.sf_contentView.frame = CGRectMake(0, CGRectGetMaxY(selectCellFinalFrame), self.sf_contentView.frame.size.width,contentHeight);
         } completion:^(BOOL finished) {
             //完成状态
@@ -219,8 +237,8 @@ static const void *k_sf_collection_direction = &k_sf_collection_direction;
     {
         //增加contentview
         CGRect selectCelOldFrame =  [self cellForItemAtIndexPath:indexPath].frame;
-        self.sf_up = self.sf_contentView.frame.size.height - bottomY;
-        self.sf_down = bottomY;
+        self.sf_collection_open_up = self.sf_contentView.frame.size.height - bottomY;
+        self.sf_collection_open_down = bottomY;
         [self sf_moveUPandDownFromIndexPath:indexPath];
         CGRect selectCelFinalFrame =  [self cellForItemAtIndexPath:indexPath].frame;
         
@@ -228,7 +246,7 @@ static const void *k_sf_collection_direction = &k_sf_collection_direction;
         self.sf_contentView.frame = CGRectMake(0, CGRectGetMaxY(selectCelOldFrame), self.sf_contentView.frame.size.width,0);
         self.sf_contentView.clipsToBounds = YES;
         [self addSubview:self.sf_contentView];
-        [UIView animateWithDuration:SFCollectionCellMoveDuration animations:^{
+        [UIView animateWithDuration:self.sf_collection_open_duration animations:^{
             self.sf_contentView.frame = CGRectMake(0, CGRectGetMaxY(selectCelFinalFrame), self.sf_contentView.frame.size.width,contentHeight);
         } completion:^(BOOL finished) {
             //完成状态
@@ -253,11 +271,11 @@ static const void *k_sf_collection_direction = &k_sf_collection_direction;
         
         if ((path.section > indexPath.section))
         {
-            [self sf_animateView:moveCell WithDirection:SFCollectionMoveDirectionDown distance:self.sf_down isOpening:YES];
+            [self sf_animateView:moveCell WithDirection:SFCollectionMoveDirectionDown distance:self.sf_collection_open_down isOpening:YES];
             [self.sf_animationCells addObject:moveCell];
         }
         else if ((path.section  == indexPath.section) && (path.row > indexPath.row) && selectCell.frame.origin.y != moveCell.frame.origin.y){
-            [self sf_animateView:moveCell WithDirection:SFCollectionMoveDirectionDown distance:self.sf_down isOpening:YES];
+            [self sf_animateView:moveCell WithDirection:SFCollectionMoveDirectionDown distance:self.sf_collection_open_down isOpening:YES];
             [self.sf_animationCells addObject:moveCell];
         }
         else
@@ -280,7 +298,7 @@ static const void *k_sf_collection_direction = &k_sf_collection_direction;
             UICollectionReusableView *sectionHeader = [self supplementaryViewForElementKind:UICollectionElementKindSectionHeader atIndexPath:index];
             
             if (sectionHeader) {
-                [self sf_animateView:sectionHeader WithDirection:SFCollectionMoveDirectionDown distance:self.sf_down isOpening:YES];
+                [self sf_animateView:sectionHeader WithDirection:SFCollectionMoveDirectionDown distance:self.sf_collection_open_down isOpening:YES];
                 [self.sf_animationHeaders addObject:sectionHeader];
             }
         }
@@ -298,7 +316,7 @@ static const void *k_sf_collection_direction = &k_sf_collection_direction;
         
         if ((path.section < indexPath.section))
         {
-            [self sf_animateView:moveCell WithDirection:SFCollectionMoveDirectionUp distance:self.sf_up isOpening:YES];
+            [self sf_animateView:moveCell WithDirection:SFCollectionMoveDirectionUp distance:self.sf_collection_open_up isOpening:YES];
             [self.sf_animationCells addObject:moveCell];
             
         }
@@ -308,23 +326,23 @@ static const void *k_sf_collection_direction = &k_sf_collection_direction;
             //                NSLog(@"{move:%zd,%zd}",path.section,path.row);
             
             if ((path.row <= indexPath.row)) {
-                [self sf_animateView:moveCell WithDirection:SFCollectionMoveDirectionUp distance:self.sf_up isOpening:YES];
+                [self sf_animateView:moveCell WithDirection:SFCollectionMoveDirectionUp distance:self.sf_collection_open_up isOpening:YES];
                 [self.sf_animationCells addObject:moveCell];
                 
             }else{
                 CGRect m =  [self layoutAttributesForItemAtIndexPath:path].frame;
                 if ((m.origin.y  - selectCellFrame.origin.y != 0)) {
-                    [self sf_animateView:moveCell WithDirection:SFCollectionMoveDirectionDown distance:self.sf_down isOpening:YES];
+                    [self sf_animateView:moveCell WithDirection:SFCollectionMoveDirectionDown distance:self.sf_collection_open_down isOpening:YES];
                     [self.sf_animationCells addObject:moveCell];
                 }else{
-                    [self sf_animateView:moveCell WithDirection:SFCollectionMoveDirectionUp distance:self.sf_up isOpening:YES];
+                    [self sf_animateView:moveCell WithDirection:SFCollectionMoveDirectionUp distance:self.sf_collection_open_up isOpening:YES];
                     [self.sf_animationCells addObject:moveCell];
                 }
             }
         }
         else
         {
-            [self sf_animateView:moveCell WithDirection:SFCollectionMoveDirectionDown distance:self.sf_down isOpening:YES];
+            [self sf_animateView:moveCell WithDirection:SFCollectionMoveDirectionDown distance:self.sf_collection_open_down isOpening:YES];
             [self.sf_animationCells addObject:moveCell];
         }
         if (path.row != indexPath.row)
@@ -345,11 +363,11 @@ static const void *k_sf_collection_direction = &k_sf_collection_direction;
         {
             if ((index.section < indexPath.section))
             {
-                [self sf_animateView:sectionHeader WithDirection:SFCollectionMoveDirectionUp distance:self.sf_up isOpening:YES];
+                [self sf_animateView:sectionHeader WithDirection:SFCollectionMoveDirectionUp distance:self.sf_collection_open_up isOpening:YES];
             }else if (index.section  == indexPath.section) {
-                [self sf_animateView:sectionHeader WithDirection:SFCollectionMoveDirectionUp distance:self.sf_up isOpening:YES];
+                [self sf_animateView:sectionHeader WithDirection:SFCollectionMoveDirectionUp distance:self.sf_collection_open_up isOpening:YES];
             }else{
-                [self sf_animateView:sectionHeader WithDirection:SFCollectionMoveDirectionDown distance:self.sf_down isOpening:YES];
+                [self sf_animateView:sectionHeader WithDirection:SFCollectionMoveDirectionDown distance:self.sf_collection_open_down isOpening:YES];
             }
             [self.sf_animationHeaders addObject:sectionHeader];
         }
@@ -371,11 +389,11 @@ static const void *k_sf_collection_direction = &k_sf_collection_direction;
     [self.sf_animationCells enumerateObjectsUsingBlock:^(UICollectionViewCell *moveCell, NSUInteger idx, BOOL *stop) {
         if (moveCell.sf_collection_direction == SFCollectionMoveDirectionUp)
         {
-            [self sf_animateView:moveCell WithDirection:SFCollectionMoveDirectionDown distance:self.sf_up isOpening:NO];
+            [self sf_animateView:moveCell WithDirection:SFCollectionMoveDirectionDown distance:self.sf_collection_open_up isOpening:NO];
         }
         else
         {
-            [self sf_animateView:moveCell WithDirection:SFCollectionMoveDirectionUp distance:self.sf_down  isOpening:NO];
+            [self sf_animateView:moveCell WithDirection:SFCollectionMoveDirectionUp distance:self.sf_collection_open_down  isOpening:NO];
         }
     }];
     
@@ -383,18 +401,18 @@ static const void *k_sf_collection_direction = &k_sf_collection_direction;
     [self.sf_animationHeaders enumerateObjectsUsingBlock:^(UICollectionReusableView *moveCell, NSUInteger idx, BOOL *stop) {
         if (moveCell.sf_collection_direction == SFCollectionMoveDirectionUp)
         {
-            [self sf_animateView:moveCell WithDirection:SFCollectionMoveDirectionDown distance:self.sf_up  isOpening:NO];
+            [self sf_animateView:moveCell WithDirection:SFCollectionMoveDirectionDown distance:self.sf_collection_open_up  isOpening:NO];
         }
         else
         {
-            [self sf_animateView:moveCell WithDirection:SFCollectionMoveDirectionUp distance:self.sf_down  isOpening:NO];
+            [self sf_animateView:moveCell WithDirection:SFCollectionMoveDirectionUp distance:self.sf_collection_open_down  isOpening:NO];
         }
     }];
     
     CGRect oldFrame = self.sf_contentView.frame;
     
-    if (self.sf_up==0) {
-        [UIView animateWithDuration:SFCollectionCellMoveDuration animations:^{
+    if (self.sf_collection_open_up==0) {
+        [UIView animateWithDuration:self.sf_collection_open_duration animations:^{
             self.sf_contentView.frame = CGRectMake(self.sf_contentView.frame.origin.x, self.sf_contentView.frame.origin.y, self.sf_contentView.frame.size.width,0);
         } completion:^(BOOL finished) {
             self.sf_contentView.frame = oldFrame;
@@ -408,11 +426,11 @@ static const void *k_sf_collection_direction = &k_sf_collection_direction;
             }
         }];
     }else{
-        [UIView animateWithDuration:SFCollectionCellMoveDuration animations:^{
+        [UIView animateWithDuration:self.sf_collection_open_duration animations:^{
             CGRect frame = self.sf_contentView.frame;
-            frame.origin.y = frame.origin.y + self.sf_up;
+            frame.origin.y = frame.origin.y + self.sf_collection_open_up;
             self.sf_contentView.frame = frame;
-            [UIView animateWithDuration:SFCollectionCellMoveDuration animations:^{
+            [UIView animateWithDuration:self.sf_collection_open_duration animations:^{
                 CGRect frame = self.sf_contentView.frame;
                 frame.size.height = 0;
                 self.sf_contentView.frame = frame;
@@ -441,8 +459,8 @@ static const void *k_sf_collection_direction = &k_sf_collection_direction;
     [self sf_clean];
 }
 - (void)sf_clean{
-    self.sf_up = 0;
-    self.sf_down = 0;
+    self.sf_collection_open_up = 0;
+    self.sf_collection_open_down = 0;
     self.sf_selectedIndexPath = nil;
     self.scrollEnabled = YES;
     [self.sf_animationCells removeAllObjects];
@@ -484,7 +502,7 @@ static const void *k_sf_collection_direction = &k_sf_collection_direction;
         self.sf_openStatus = SFCollectionOpenStatusClosing;
     }
     
-    [UIView animateWithDuration:SFCollectionCellMoveDuration
+    [UIView animateWithDuration:self.sf_collection_open_duration
                      animations:^{
                          view.frame = newFrame;
                      } completion:^(BOOL finished) {

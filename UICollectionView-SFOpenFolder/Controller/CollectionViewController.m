@@ -141,7 +141,7 @@
     [collectionView sf_openFolderAtIndexPath:indexPath contentBlock:^UIView *(id item) {
         _detail.view.frame = CGRectMake(0, 0, collectionView.frame.size.width, _detail.view.frame.size.height);
         return _detail.view;
-    } beginningBlock:^(SFOpenStatus openStatus) {
+    } beginningBlock:^(SFCollectionOpenStatus openStatus) {
         if (openStatus == SFCollectionOpenStatusOpening) {
             NSLog(@"begin opening");
         }
@@ -149,7 +149,7 @@
             NSLog(@"begin closing");
         }
         
-    } completionBlock:^(SFOpenStatus openStatus) {
+    } completionBlock:^(SFCollectionOpenStatus openStatus) {
         if (openStatus == SFCollectionOpenStatusOpened) {
             NSLog(@"completion open");
         }

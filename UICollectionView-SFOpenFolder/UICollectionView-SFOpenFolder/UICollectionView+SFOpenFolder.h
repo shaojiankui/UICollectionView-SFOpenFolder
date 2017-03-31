@@ -15,26 +15,33 @@ typedef NS_ENUM(NSInteger, SFCollectionMoveDirection) {
     SFCollectionMoveDirectionDown
 };
 
-typedef NS_ENUM(NSInteger, SFOpenStatus) {
+typedef NS_ENUM(NSInteger, SFCollectionOpenStatus) {
     SFCollectionOpenStatusClose = 0,
     SFCollectionOpenStatusOpening = 1,
     SFCollectionOpenStatusClosing = 2,
     SFCollectionOpenStatusOpened = 3
 };
 
-typedef void(^SFCollectionBeginningBlock)(SFOpenStatus openStatus);
-typedef void(^SFCollectionCompletionBlock)(SFOpenStatus openStatus);
+typedef void(^SFCollectionBeginningBlock)(SFCollectionOpenStatus openStatus);
+typedef void(^SFCollectionCompletionBlock)(SFCollectionOpenStatus openStatus);
 typedef UIView* (^SFCollectionContentViewBlock)(id item);
 
 @interface UICollectionView (SFOpenFolder)
 @property (nonatomic,strong) UIView *sf_contentView;
-@property (assign, nonatomic) SFOpenStatus sf_openStatus;
+@property (assign, nonatomic) SFCollectionOpenStatus sf_openStatus;
 @property (strong, nonatomic) NSIndexPath *sf_selectedIndexPath;
 
 - (BOOL)sf_openFolderAtIndexPath:(NSIndexPath *)indexPath
                     contentBlock:(SFCollectionContentViewBlock)sf_contentViewBlock
                   beginningBlock:(SFCollectionBeginningBlock)sf_beginningBlock
                  completionBlock:(SFCollectionCompletionBlock)sf_completionBlock;
+
+- (BOOL)sf_openFolderAtIndexPath:(NSIndexPath *)indexPath
+                        duration:(NSTimeInterval)duration
+                    contentBlock:(SFCollectionContentViewBlock)sf_contentViewBlock
+                  beginningBlock:(SFCollectionBeginningBlock)sf_beginningBlock
+                 completionBlock:(SFCollectionCompletionBlock)sf_completionBlock;
+
 
 - (void)sf_closeViewWithSelectedIndexPath:(void (^)(NSIndexPath *selectedIndexPath))completion;
 - (void)sf_closeViewWithIndexPath:(NSIndexPath *)indexPath completion:(void (^)(void))completion;
